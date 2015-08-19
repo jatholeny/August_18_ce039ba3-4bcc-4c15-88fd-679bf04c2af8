@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>GoogleMap</title>
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?v=3.exp">
+    </script>
+    <style>
+        div[map] > #map{
+            height:1000px;
+        }
+    </style>
+    <script type="text/ng-template" id="show_map.html">
+        <form>
+            <fieldset>
+                <legend>Enter where you want to see</legend>
+                Longitude<input type="text" ng-model="position.longitude">
+                Latitude<input type="text" ng-model="position.latitude" >
+                Zoom<input type="text"  ng-model="position.zoom" >
+                <button ng-click="clickme()">showMap</button>
+            </fieldset>
+        </form>
+
+        <div id="map"></div>
+    </script>
+</head>
+<body>
+
+<div ng-controller="MyController">
+
+    <div map dirmapoption="mapoption"></div>
+</div>
+
+
+
+
+<script src="bower_components/angular/angular.js"></script>
+<script>
+    angular.module('myApp', []).controller('MyController', function ($scope) {
+        $scope.mapoption={};
+
+
+
+    }).service('getwhereyouare',function(){
+
+        this.setvalue= function(longitude,latitude,zoom){
+                var targetposition = new google.maps.LatLng(latitude, longitude);
+                var mapOptions = {
+                    center: targetposition,
+                    zoom: zoom
+                };
+                return mapOptions;
+            }
+
+
+
+    }).directive('map',function(getwhereyouare){
+        return {
+            templateUrl:'show_map.html',
+            scope:{
+                dirmapoption:'='
+            },
+            link:function(scope,element,attributes){
+                var div = document.getElementById('map');
+                scope.position = {};
+                scope.position.zoom=5;
+                scope.clickme=function(){
+
+                    scope.mapoption = getwhereyouare.setvalue(scope.position.longitude,scope.position.latitude,parseInt(scope.position.zoom));
+                    var map = new google.maps.Map(div, scope.mapoption);
+                    var marker = new google.maps.Marker({
+                        position: scope.mapoption.center,
+                        map: map,
+                        title: 'Hello World!'
+                    });
+
+                };
+
+
+
+            }
+        }
+
+    });
+</script>
+</body>
+</html>
